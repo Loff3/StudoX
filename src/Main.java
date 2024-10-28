@@ -1,27 +1,28 @@
+import Commando.CommandInvoker;
 import Controller.Controller;
 import Model.Dao.StudentDao;
 import View.View;
 
+import javax.swing.*;
+
 public class Main {
     public static void main(String[] args) {
-        // Skapa Model
-        StudentDao studentDao = StudentDao.getInstance();
+        SwingUtilities.invokeLater(() -> {
+            // Create DAO
+            StudentDao studentDao = StudentDao.getInstance();
 
-        // Skapa View
-        View view = new View();
+            // Create CommandInvoker
+            CommandInvoker commandInvoker = new CommandInvoker();
 
-        // Skapa Controller och skicka in instans av Model, lägg till View som lyssnare
-        Controller controller = new Controller(studentDao, view); //varargs Observer
+            // Create Controller
+            Controller controller = new Controller(commandInvoker, studentDao);
 
+            // Create View and set Controller
+            View view = new View();
+            view.setController(controller);
 
-
-
-        // Main-klassen ansvarar för att skapa och binda samman Model, View och Controller.
-        // View kommunicerar med Controller via händelselyssnare (ActionListeners).
-        // Controller interagerar med Model för att utföra CRUD-operationer.
-        // Model notifierar View om förändringar via Observer-mönstret.
-
-        // Modell och View lösa kompositioner så man kan välja vad de ska inehålla och är alltså två objekt som binder samma nflera objekt
+            // Register View as observer to StudentDao
+            studentDao.addObserver(view);
+        });
     }
-
 }

@@ -8,6 +8,7 @@ import ObserverPattern.Observer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 public class StudentDao implements Dao<Student>, Observable {
@@ -66,7 +67,18 @@ public class StudentDao implements Dao<Student>, Observable {
         notifyObservers("Student updated: " + student.getName());
     }
 
-
+    public List<Student> search(String query) {
+        String lowerCaseQuery = query.toLowerCase();
+        return students.stream()
+                .filter(student ->
+                        student.getPersonID().toLowerCase().contains(lowerCaseQuery) ||
+                                student.getName().toLowerCase().contains(lowerCaseQuery) ||
+                                student.getPersonalNumber().toLowerCase().contains(lowerCaseQuery) ||
+                                student.getEmail().toLowerCase().contains(lowerCaseQuery) ||
+                                student.getProgram().toLowerCase().contains(lowerCaseQuery)
+                )
+                .collect(Collectors.toList());
+    }
 
     @Override
     public void delete(Student student) {
