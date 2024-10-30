@@ -2,12 +2,21 @@ import Commando.CommandInvoker;
 import Controller.Controller;
 import Model.Dao.StudentDao;
 import View.View;
+import com.formdev.flatlaf.FlatDarculaLaf;
 
 import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
+
+
         SwingUtilities.invokeLater(() -> {
+
+            try {
+                UIManager.setLookAndFeel( new FlatDarculaLaf() );
+            } catch( Exception ex ) {
+                System.err.println( "Failed to initialize LaF" );
+            }
             // Create DAO
             StudentDao studentDao = StudentDao.getInstance();
 

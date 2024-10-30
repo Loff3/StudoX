@@ -16,4 +16,9 @@ public class AddStudentCommand implements Command {
     public void execute() {
         studentDao.save(student);
     }
+
+    @Override
+    public void undo() {
+        studentDao.delete(student);
+    }
 }

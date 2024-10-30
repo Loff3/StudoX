@@ -25,4 +25,10 @@ public class DeleteStudentCommand implements Command {
             throw new IllegalArgumentException("Student not found.");
         }
     }
+
+    @Override
+    public void undo() {
+        if (removedStudent != null)
+         studentDao.save(removedStudent);
+    }
 }

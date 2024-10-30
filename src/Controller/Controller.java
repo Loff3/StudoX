@@ -3,7 +3,6 @@ package Controller;
 import Commando.*;
 import Model.Dao.StudentDao;
 import Model.Person.Student;
-
 import java.util.List;
 
 public class Controller implements ControllerInterface {
@@ -31,11 +30,24 @@ public class Controller implements ControllerInterface {
     public List<Student> getAllStudents() {
         return studentDao.getAll();
     }
+
     @Override
-    public List<Student> searchStudents(String query) {
-        SearchCommand searchCommand = new SearchCommand(studentDao, query);
-        commandInvoker.executeCommand(searchCommand);
-        return searchCommand.getSearchResults();
+    public void undo() {
+        commandInvoker.undo();
     }
 
+    @Override
+    public void redo() {
+        commandInvoker.redo();
+    }
+
+    @Override
+    public boolean canUndo() {
+        return commandInvoker.canUndo();
+    }
+
+    @Override
+    public boolean canRedo() {
+        return commandInvoker.canRedo();
+    }
 }
