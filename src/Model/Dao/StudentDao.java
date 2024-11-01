@@ -1,30 +1,24 @@
 package Model.Dao;
 
-
 import Model.Person.Student;
 import ObserverPattern.Observable;
 import ObserverPattern.Observer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 public class StudentDao implements Dao<Student>, Observable {
     private List<Student> students = new ArrayList<>();
     private List<Observer> observers = new ArrayList<>();
 
-    // Trådsäker Singleton
+    // Thread-safe Singleton
     private static volatile StudentDao instance;
 
     private StudentDao() {
-        // Initialisera med några exempelstudenter
-        students.add(new Student("1", "John Doe", "1234567890", "john@example.com", "Program1"));
-        students.add(new Student("2", "Jane Smith", "0987654321", "jane@example.com", "Program2"));
+
     }
 
-    // Trådsäker Singleton
     public static StudentDao getInstance() {
         if (instance == null) {
             synchronized (StudentDao.class) {
@@ -43,16 +37,14 @@ public class StudentDao implements Dao<Student>, Observable {
                 .findFirst();
     }
 
-
     @Override
     public List<Student> getAll() {
-        return students;
+        return new ArrayList<>(students);
     }
 
     @Override
     public void save(Student student) {
         students.add(student);
-
         notifyObservers("Student added: " + student.getName());
     }
 
@@ -61,10 +53,10 @@ public class StudentDao implements Dao<Student>, Observable {
         student.setName(updatedStudent.getName());
         student.setEmail(updatedStudent.getEmail());
         student.setPersonalNumber(updatedStudent.getPersonalNumber());
-        student.setPersonID(updatedStudent.getPersonID());
         student.setProgram(updatedStudent.getProgram());
+        student.setPhoneNumber(updatedStudent.getPhoneNumber());
 
-        notifyObservers("Student updated: " + student.getName());
+        notifyObservers("Student added: " + formatStudentData(student));
     }
 
     public List<Student> search(String query) {
@@ -82,10 +74,19 @@ public class StudentDao implements Dao<Student>, Observable {
 
     @Override
     public void delete(Student student) {
-        students.remove(student);
-
-        notifyObservers("Student deleted: " + student.getName());
+        if (students.remove(student)) {
+            notifyObservers("Student deleted: " + formatStudentData(student));
+        } else {
+            System.out.println("Error Student Not Found");
+        }
     }
+
+
+    public void clearAll() {
+        students.clear();
+        notifyObservers("All students cleared.");
+    }
+
     @Override
     public void addObserver(Observer o) {
         observers.add(o);
@@ -101,5 +102,17 @@ public class StudentDao implements Dao<Student>, Observable {
         for (Observer observer : observers) {
             observer.update(message);
         }
+    }
+
+    private String formatStudentData(Student student) {
+        // Format: ID,Name,PersonalNumber,Email,PhoneNumber,Program
+        return String.join(",",
+                student.getPersonID(),
+                student.getName(),
+                student.getPersonalNumber(),
+                student.getEmail(),
+                student.getPhoneNumber(),
+                student.getProgram()
+        );
     }
 }

@@ -21,4 +21,9 @@ public class AddStudentCommand implements Command {
     public void undo() {
         studentDao.delete(student);
     }
+
+    @Override
+    public String getDescription() {
+        return "Add Student: " + student.getName();
+    }
 }

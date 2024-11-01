@@ -1,6 +1,9 @@
 import Commando.CommandInvoker;
 import Controller.Controller;
+import Controller.ControllerInterface;
+import Model.Dao.HistoryDao;
 import Model.Dao.StudentDao;
+import Model.Service.StudentService;
 import View.View;
 import com.formdev.flatlaf.FlatDarculaLaf;
 
@@ -17,21 +20,20 @@ public class Main {
             } catch( Exception ex ) {
                 System.err.println( "Failed to initialize LaF" );
             }
-            // Create DAO
+            // Instantiate DAOs
             StudentDao studentDao = StudentDao.getInstance();
+            HistoryDao historyDao = HistoryDao.getInstance();
 
-            // Create CommandInvoker
-            CommandInvoker commandInvoker = new CommandInvoker();
+            // Instantiate CommandInvoker with DAOs
+            CommandInvoker commandInvoker = new CommandInvoker(historyDao, studentDao);
 
-            // Create Controller
-            Controller controller = new Controller(commandInvoker, studentDao);
+            // Instantiate Controller with CommandInvoker
+            ControllerInterface controller = new Controller(commandInvoker);
 
-            // Create View and set Controller
-            View view = new View();
-            view.setController(controller);
+            // Instantiate View and set Controller and StudentService
+            View view = new View(controller);
 
-            // Register View as observer to StudentDao
-            studentDao.addObserver(view);
+
         });
     }
 }

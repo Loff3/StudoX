@@ -3,32 +3,27 @@ package Commando;
 import Model.Dao.StudentDao;
 import Model.Person.Student;
 
-import java.util.Optional;
-
 public class DeleteStudentCommand implements Command {
     private final StudentDao studentDao;
-    private final String studentId;
-    private Student removedStudent;
+    private final Student student;
 
-    public DeleteStudentCommand(StudentDao studentDao, String studentId) {
+    public DeleteStudentCommand(StudentDao studentDao, Student student) {
         this.studentDao = studentDao;
-        this.studentId = studentId;
+        this.student = student;
     }
 
     @Override
     public void execute() {
-        Optional<Student> studentOpt = studentDao.get(studentId);
-        if (studentOpt.isPresent()) {
-            removedStudent = studentOpt.get();
-            studentDao.delete(removedStudent);
-        } else {
-            throw new IllegalArgumentException("Student not found.");
-        }
+        studentDao.delete(student);
     }
 
     @Override
     public void undo() {
-        if (removedStudent != null)
-         studentDao.save(removedStudent);
+        studentDao.save(student);
+    }
+
+    @Override
+    public String getDescription() {
+        return "Delete Student: " + student.getPersonID();
     }
 }
