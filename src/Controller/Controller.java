@@ -1,22 +1,59 @@
 package Controller;
 
-import Commando.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import Commando.AddStudentCommand;
+import Commando.Command;
+import Commando.CommandInvoker;
+import Commando.DeleteStudentCommand;
+import Commando.VersionControlCommand;
 import Model.Dao.HistoryDao;
 import Model.Dao.StudentDao;
 import Model.Person.Student;
 import ObserverPattern.Observer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
-public class Controller implements ControllerInterface {    private final CommandInvoker commandInvoker;
+public class Controller implements ControllerInterface {
+    private final CommandInvoker commandInvoker;
     private final StudentDao studentDao;
     private final HistoryDao historyDao;
+    private final Set<String> validUsernames;
 
     public Controller(CommandInvoker commandInvoker) {
         this.commandInvoker = commandInvoker;
         this.studentDao = commandInvoker.getStudentDao();
         this.historyDao = commandInvoker.getHistoryDao();
+        this.validUsernames = loadValidUsernames("valid_usernames.txt"); // tar filen för med valid users
+    }
+
+    private Set<String> loadValidUsernames(String filename) {
+        Set<String> usernames = new HashSet<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                usernames.add(line.trim());
+            }
+        } catch (IOException e) {
+            System.err.println("Error loading usernames: " + e.getMessage());
+        }
+        return usernames;
+    }
+
+    @Override
+    public boolean attemptLogin(String username) {
+        if (validUsernames.contains(username)) {
+            System.out.println("Login successful for username: " + username);
+            return true;
+        } else {
+            System.out.println("Invalid username: " + username);
+            return false;
+        }
     }
 
     @Override
@@ -98,9 +135,8 @@ public class Controller implements ControllerInterface {    private final Comman
         historyDao.removeObserver(o);
     }
 
-        @Override
-        public List<HistoryDao.CommandRecord> getCommandHistory() {
-            return historyDao.getCommandHistory();
-        }
-
+    @Override
+    public List<HistoryDao.CommandRecord> getCommandHistory() {
+        return historyDao.getCommandHistory();
+    }
 }

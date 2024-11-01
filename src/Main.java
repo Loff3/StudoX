@@ -1,26 +1,25 @@
+import javax.swing.SwingUtilities;
+
 import Commando.CommandInvoker;
 import Controller.Controller;
 import Controller.ControllerInterface;
 import Model.Dao.HistoryDao;
 import Model.Dao.StudentDao;
-import Model.Service.StudentService;
+import View.Login;
 import View.View;
-import com.formdev.flatlaf.FlatDarculaLaf;
-
-import javax.swing.*;
+//import com.formdev.flatlaf.FlatDarculaLaf;
 
 public class Main {
-    public static void main(String[] args) {
+	public static void main(String[] args) {
 
+		SwingUtilities.invokeLater(() -> {
 
-        SwingUtilities.invokeLater(() -> {
-
-            try {
-                UIManager.setLookAndFeel( new FlatDarculaLaf() );
-            } catch( Exception ex ) {
-                System.err.println( "Failed to initialize LaF" );
-            }
-            // Instantiate DAOs
+			// try {
+			// UIManager.setLookAndFeel( new FlatDarculaLaf() );
+			// } catch( Exception ex ) {
+			// System.err.println( "Failed to initialize LaF" );
+			// }
+			// Instantiate DAOs
             StudentDao studentDao = StudentDao.getInstance();
             HistoryDao historyDao = HistoryDao.getInstance();
 
@@ -30,10 +29,10 @@ public class Main {
             // Instantiate Controller with CommandInvoker
             ControllerInterface controller = new Controller(commandInvoker);
 
-            // Instantiate View and set Controller and StudentService
-            View view = new View(controller);
-
-
+            // Show Login window first
+            Login loginWindow = new Login(controller);
+            loginWindow.setVisible(true);
         });
     }
+
 }

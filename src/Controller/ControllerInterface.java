@@ -24,4 +24,6 @@ public interface ControllerInterface {
 
 
         List<CommandRecord> getCommandHistory();
+        
+        boolean attemptLogin(String username);
 }
