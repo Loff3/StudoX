@@ -1,12 +1,13 @@
 package Model.Dao;
 
-import Model.Person.Student;
-import ObserverPattern.Observable;
-import ObserverPattern.Observer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import Model.Person.Student;
+import ObserverPattern.Observable;
+import ObserverPattern.Observer;
 
 public class StudentDao implements Dao<Student>, Observable {
     private List<Student> students = new ArrayList<>();
@@ -115,4 +116,20 @@ public class StudentDao implements Dao<Student>, Observable {
                 student.getProgram()
         );
     }
+    
+    public void editStudent(String personID, Student updatedStudent) {
+        Optional<Student> studentOpt = get(personID);
+        if (studentOpt.isPresent()) {
+            Student student = studentOpt.get();
+            student.setName(updatedStudent.getName());
+            student.setEmail(updatedStudent.getEmail());
+            student.setPersonalNumber(updatedStudent.getPersonalNumber());
+            student.setProgram(updatedStudent.getProgram());
+            student.setPhoneNumber(updatedStudent.getPhoneNumber());
+
+            notifyObservers("Student edited: " + formatStudentData(student));
+        }
+    }
 }
+
+

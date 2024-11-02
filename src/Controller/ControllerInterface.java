@@ -1,9 +1,10 @@
 package Controller;
 
+import java.util.List;
+
+import Model.Dao.HistoryDao.CommandRecord;
 import Model.Person.Student;
 import ObserverPattern.Observer;
-import Model.Dao.HistoryDao.CommandRecord;
-import java.util.List;
 
 public interface ControllerInterface {
         void addStudent(Student student);
@@ -26,4 +27,6 @@ public interface ControllerInterface {
         List<CommandRecord> getCommandHistory();
         
         boolean attemptLogin(String username);
+        
+        void editStudent(String personID, Student updatedStudent);
 }

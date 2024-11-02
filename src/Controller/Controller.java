@@ -13,6 +13,7 @@ import Commando.AddStudentCommand;
 import Commando.Command;
 import Commando.CommandInvoker;
 import Commando.DeleteStudentCommand;
+import Commando.EditStudentCommand;
 import Commando.VersionControlCommand;
 import Model.Dao.HistoryDao;
 import Model.Dao.StudentDao;
@@ -139,4 +140,11 @@ public class Controller implements ControllerInterface {
     public List<HistoryDao.CommandRecord> getCommandHistory() {
         return historyDao.getCommandHistory();
     }
+
+    @Override
+    public void editStudent(String personID, Student updatedStudent) {
+        Command editCommand = new EditStudentCommand(studentDao, personID, updatedStudent);
+        commandInvoker.executeCommand(editCommand);
+    }
+
 }
