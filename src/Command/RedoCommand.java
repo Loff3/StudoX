@@ -1,4 +1,4 @@
-package Commando;
+package Command;
 
 public class RedoCommand implements Command {
     private final Command originalCommand;

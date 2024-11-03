@@ -1,6 +1,6 @@
 package Controller;
 
-import Commando.*;
+import Command.*;
 import Model.Dao.HistoryDao;
 import Model.Dao.StudentDao;
 import Model.Person.Student;
@@ -49,6 +49,12 @@ public class Controller implements ControllerInterface {    private final Comman
     public void deleteStudent(Student student) {
         Command deleteCommand = new DeleteStudentCommand(studentDao, student);
         commandInvoker.executeCommand(deleteCommand);
+    }
+
+    @Override
+    public void updateStudent(Student oldStudent, Student newStudent) {
+        Command updateCommand = new UpdateStudentCommand(studentDao, oldStudent, newStudent);
+        commandInvoker.executeCommand(updateCommand);
     }
 
     @Override

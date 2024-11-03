@@ -1,4 +1,4 @@
-package Commando;
+package Command;
 
 import Model.Dao.HistoryDao;
 import Model.Dao.StudentDao;

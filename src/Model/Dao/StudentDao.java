@@ -50,6 +50,7 @@ public class StudentDao implements Dao<Student>, Observable {
 
     @Override
     public void update(Student student, Student updatedStudent) {
+
         student.setName(updatedStudent.getName());
         student.setEmail(updatedStudent.getEmail());
         student.setPersonalNumber(updatedStudent.getPersonalNumber());

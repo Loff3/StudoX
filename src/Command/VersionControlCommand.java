@@ -1,4 +1,4 @@
-package Commando;
+package Command;
 
 import Model.Dao.StudentDao;
 import java.util.List;

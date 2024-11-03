@@ -24,6 +24,8 @@ public class StudentService implements Observer {
 
     public StudentService(ControllerInterface controller) {
         controller.addObserver(this);
+
+
     }
 
     public Student createStudent(String name, String personalNumber, String email, String phoneNumber, String program) throws Exception {

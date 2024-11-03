@@ -8,7 +8,7 @@ import java.util.List;
 public interface ControllerInterface {
         void addStudent(Student student);
         void deleteStudent(Student student);
-
+        void updateStudent(Student oldStudent, Student newStudent);
         Student getStudentById(String studentId);
         List<Student> getAllStudents();
 

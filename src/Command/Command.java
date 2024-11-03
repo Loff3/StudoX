@@ -1,4 +1,4 @@
-package Commando;
+package Command;
 
 public interface Command {
     void execute();
