@@ -20,6 +20,7 @@ public class CommandInvoker {
         undoStack.push(command);
         redoStack.clear(); // Clear redo stack when a new command is executed
         historyDao.addCommand(command); // Add to history
+        studentDao.saveToFile("students.txt");
     }
 
     public HistoryDao getHistoryDao() {
@@ -38,6 +39,7 @@ public class CommandInvoker {
 
             // Add undo action to history (optional)
             historyDao.addCommand(new UndoCommand(command));
+            studentDao.saveToFile("students.txt");
         }
     }
 
@@ -49,6 +51,7 @@ public class CommandInvoker {
 
             // Add RedoCommand to history
             historyDao.addCommand(new RedoCommand(command));
+            studentDao.saveToFile("students.txt");
         }
     }
 

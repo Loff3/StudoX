@@ -22,7 +22,7 @@ public class Main {
 			// Instantiate DAOs
             StudentDao studentDao = StudentDao.getInstance();
             HistoryDao historyDao = HistoryDao.getInstance();
-
+            studentDao.loadFromFile("students.txt");
             // Instantiate CommandInvoker with DAOs
             CommandInvoker commandInvoker = new CommandInvoker(historyDao, studentDao);
 
@@ -32,6 +32,11 @@ public class Main {
             // Show Login window first
             Login loginWindow = new Login(controller);
             loginWindow.setVisible(true);
+            
+            
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                studentDao.saveToFile("students.txt");
+            }));
         });
     }
 

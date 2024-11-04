@@ -1,8 +1,14 @@
 package Model.Dao;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import Model.Person.Student;
@@ -128,6 +134,45 @@ public class StudentDao implements Dao<Student>, Observable {
             student.setPhoneNumber(updatedStudent.getPhoneNumber());
 
             notifyObservers("Student edited: " + formatStudentData(student));
+        }
+    }
+    
+    public void loadFromFile(String filename) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(";");
+                if (parts.length == 5) { // Anpassa efter antalet attribut
+                    String name = parts[0].trim();
+                    String personalNumber = parts[1].trim();
+                    String email = parts[2].trim();
+                    String phoneNumber = parts[3].trim();
+                    String program = parts[4].trim();
+
+                    // Skapa studentobjekt och lägg till i listan
+                    Student student = new Student(UUID.randomUUID().toString(), name, personalNumber, email, phoneNumber, program);
+                    students.add(student);
+                }
+            }
+            notifyObservers("Data loaded from file.");
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+    }
+
+    
+    public void saveToFile(String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            for (Student student : students) {
+                writer.write(student.getName() + ";" + 
+                             student.getPersonalNumber() + ";" + 
+                             student.getEmail() + ";" + 
+                             student.getPhoneNumber() + ";" + 
+                             student.getProgram() + "\n");
+            }
+            System.out.println("Data saved to file.");
+        } catch (IOException e) {
+            System.err.println("Error writing to file: " + e.getMessage());
         }
     }
 }

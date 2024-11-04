@@ -204,16 +204,20 @@ public class StudentPanel extends JPanel implements Observer {
         }
     }
 
-    private void loadSelectedStudentIntoEditFields(int row) {
-        String studentId = (String) studentTableModel.getValueAt(row, 0);
-        Student student = controller.getStudentById(studentId);
-
-        if (student != null) {
-            editNameField.setText(student.getName());
-            editPersonalNumberField.setText(student.getPersonalNumber());
-            editEmailField.setText(student.getEmail());
-            editPhoneNumberField.setText(student.getPhoneNumber());
-            editProgramField.setText(student.getProgram());
+    private void loadSelectedStudentIntoEditFields(int viewRow) {
+        if (viewRow >= 0) {
+            // Konvertera indexet från tabellens vy till modellens index
+            int modelRow = studentTable.convertRowIndexToModel(viewRow);
+            String studentId = (String) studentTableModel.getValueAt(modelRow, 0);
+            
+            Student student = controller.getStudentById(studentId);
+            if (student != null) {
+                editNameField.setText(student.getName());
+                editPersonalNumberField.setText(student.getPersonalNumber());
+                editEmailField.setText(student.getEmail());
+                editPhoneNumberField.setText(student.getPhoneNumber());
+                editProgramField.setText(student.getProgram());
+            }
         }
     }
 

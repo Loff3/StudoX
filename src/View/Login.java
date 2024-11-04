@@ -1,7 +1,6 @@
 package View;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 
@@ -29,21 +28,15 @@ public class Login extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(new Color(54, 57, 63));
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBackground(new Color(54, 57, 63));
 
         JLabel usernameLabel = new JLabel("Username:");
-        usernameLabel.setForeground(Color.LIGHT_GRAY);
         usernameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         usernameField = new JTextField();
         usernameField.setMaximumSize(new Dimension(100, 25));
-        usernameField.setBackground(new Color(64, 68, 75));
-        usernameField.setForeground(Color.WHITE);
-        usernameField.setCaretColor(Color.WHITE);
         usernameField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         mainPanel.add(Box.createVerticalStrut(20));
@@ -53,9 +46,6 @@ public class Login extends JFrame {
         mainPanel.add(Box.createVerticalStrut(20));
 
         loginButton = new JButton("Login");
-        loginButton.setBackground(new Color(88, 101, 242));
-        loginButton.setForeground(Color.WHITE);
-        loginButton.setFocusPainted(false);
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         loginButton.addActionListener(e -> {
             if (controller != null && controller.attemptLogin(usernameField.getText().trim())) {
@@ -70,7 +60,6 @@ public class Login extends JFrame {
 
         // Error message
         errorLabel = new JLabel("");
-        errorLabel.setForeground(Color.RED);
         errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         errorLabel.setVisible(false);
 

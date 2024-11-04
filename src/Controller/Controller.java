@@ -75,6 +75,8 @@ public class Controller implements ControllerInterface {
         // Create and execute VersionControlCommand
         VersionControlCommand versionControlCommand = new VersionControlCommand(studentDao, commandsToExecute);
         commandInvoker.executeVersionControlCommand(versionControlCommand);
+        
+        studentDao.saveToFile("students.txt");
     }
 
     @Override
