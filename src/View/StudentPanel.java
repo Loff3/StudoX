@@ -64,13 +64,21 @@ public class StudentPanel extends JPanel implements Observer {
         this.controller = controller;
         controller.addObserver(this);
 
-        // Instantiate StudentService and register as observer
-        studentService = new StudentService(controller);
-
-
         initComponents();
         loadStudentData();
         updateUndoRedoButtons();
+        addInitialStudents();
+    }
+
+    private void addInitialStudents() {
+        try {
+            // Add initial students within try-catch to handle exceptions
+            controller.addStudent("Alice Smith", "1234567890", "alice@example.com", "+1234567890", "Computer Science");
+            controller.addStudent("Bob Johnson", "0987654321", "bob@example.com", "+0987654321", "Mathematics");
+            controller.addStudent("Carol Williams", "1122334455", "carol@example.com", "+1122334455", "Physics");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error adding initial students: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void initComponents() {
@@ -115,12 +123,20 @@ public class StudentPanel extends JPanel implements Observer {
         updateButton.addActionListener(e -> toggleUpdateForm());
         deleteButton.addActionListener(e -> deleteStudent());
         undoButton.addActionListener(e -> {
-            controller.undo();
-            updateUndoRedoButtons();
+            try {
+                controller.undo();
+                updateUndoRedoButtons();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error during undo: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
         redoButton.addActionListener(e -> {
-            controller.redo();
-            updateUndoRedoButtons();
+            try {
+                controller.redo();
+                updateUndoRedoButtons();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error during redo: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         // Search Panel
@@ -178,7 +194,9 @@ public class StudentPanel extends JPanel implements Observer {
                     try {
                         selectedStudent = controller.getStudentById(studentId);
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(this, "Error retrieving student: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        selectedStudent = null;
+                        updateButton.setEnabled(false);
                     }
                 } else {
                     updateButton.setEnabled(false);
@@ -330,26 +348,22 @@ public class StudentPanel extends JPanel implements Observer {
     }
 
     private void addStudent() {
-        // Get data from add form fields
+        // Collect data from form fields
         String name = addNameField.getText().trim();
         String personalNumber = addPersonalNumberField.getText().trim();
         String email = addEmailField.getText().trim();
         String phoneNumber = addPhoneNumberField.getText().trim();
         String program = addProgramField.getText().trim();
 
-        // Simple validation
+        // Simple validation (optional)
         if (name.isEmpty() || personalNumber.isEmpty() || email.isEmpty() || phoneNumber.isEmpty() || program.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Input Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-            // Create student via StudentService
-            Student student = studentService.createStudent(name, personalNumber, email, phoneNumber, program);
-
-            // Add student via controller
-            controller.addStudent(student);
-
+            // Pass data to the controller
+            controller.addStudent(name, personalNumber, email, phoneNumber, program);
             // Clear text fields
             addNameField.setText("");
             addPersonalNumberField.setText("");
@@ -365,29 +379,22 @@ public class StudentPanel extends JPanel implements Observer {
     }
 
     private void updateStudent() {
-        if (selectedStudent == null) {
-            JOptionPane.showMessageDialog(this, "No student selected", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        // Get data from update form fields
+        // Collect data from form fields
         String name = updateNameField.getText().trim();
         String personalNumber = updatePersonalNumberField.getText().trim();
         String email = updateEmailField.getText().trim();
         String phoneNumber = updatePhoneNumberField.getText().trim();
         String program = updateProgramField.getText().trim();
 
-        // Simple validation
+        // Simple validation (optional)
         if (name.isEmpty() || personalNumber.isEmpty() || email.isEmpty() || phoneNumber.isEmpty() || program.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Input Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-            // Create the updated student object with the same personID
-            Student updatedStudent = new Student(selectedStudent.getPersonID(), name, personalNumber, email, phoneNumber, program);
-
-            // Update student via controller
-            controller.updateStudent(selectedStudent, updatedStudent);
+            // Pass data and selectedStudent to the controller
+            controller.updateStudent(selectedStudent, name, personalNumber, email, phoneNumber, program);
 
             // Clear the form fields
             updateNameField.setText("");
@@ -401,6 +408,7 @@ public class StudentPanel extends JPanel implements Observer {
             selectedStudent = null;
             updateButton.setEnabled(false);
             studentTable.clearSelection();
+
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error updating student: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -417,6 +425,7 @@ public class StudentPanel extends JPanel implements Observer {
                 JOptionPane.showMessageDialog(this, "Student deleted successfully!");
                 selectedStudent = null;
                 updateButton.setEnabled(false);
+                loadStudentData(); // Refresh table
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error deleting student: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }

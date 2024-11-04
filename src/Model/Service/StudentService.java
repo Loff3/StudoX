@@ -1,145 +1,133 @@
 package Model.Service;
 
-import Controller.ControllerInterface;
+import Model.Dao.StudentDao;
 import Model.Person.Student;
-import ObserverPattern.Observer;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
-public class StudentService implements Observer {
+public class StudentService {
 
-    private static final String EMAIL_REGEX = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+    private static final String EMAIL_REGEX = "^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$";
     private static final String PHONE_REGEX = "^\\+?\\d{10,15}$";
     private static final String PERSONAL_NUMBER_REGEX = "^\\d{10,12}$";
 
-    // Local caches for uniqueness checks
-    private final Set<String> emails = Collections.synchronizedSet(new HashSet<>());
-    private final Set<String> phoneNumbers = Collections.synchronizedSet(new HashSet<>());
-    private final Set<String> personalNumbers = Collections.synchronizedSet(new HashSet<>());
-    private final Set<String> studentIds = Collections.synchronizedSet(new HashSet<>());
-
     // Map to keep track of counters for each program initial
-    private final Map<Character, Integer> programCounters = Collections.synchronizedMap(new HashMap<>());
+    private final Map<Character, Integer> programCounters = new HashMap<>();
 
-    public StudentService(ControllerInterface controller) {
-        controller.addObserver(this);
+    private final StudentDao studentDao;
 
-
+    public StudentService(StudentDao studentDao) {
+        this.studentDao = studentDao;
     }
 
-    public Student createStudent(String name, String personalNumber, String email, String phoneNumber, String program) throws Exception {
+    public Student createStudent(String name, String personalNumber, String email, String phoneNumber, String program, String studentId) throws Exception {
         // Validate inputs
         validatePersonalNumber(personalNumber);
         validateEmail(email);
         validatePhoneNumber(phoneNumber);
+        validateProgram(program);
 
-        // Generate unique identifier
-        String studentId = generateUniqueIdentifier(program);
+        // Use the provided studentId if not null
+        if (studentId == null) {
+            // Generate unique identifier
+            studentId = generateUniqueIdentifier(program);
+        } else {
+            // Ensure the studentId is unique
+            if (studentDao.studentIdExists(studentId)) {
+                System.out.println("Student ID already exists.");
+                return null;
+            }
+        }
 
         // Create the Student object
         Student student = new Student(studentId, name, personalNumber, email, phoneNumber, program);
 
-        // Update local caches
-        synchronized (this) {
-            emails.add(email.toLowerCase());
-            phoneNumbers.add(phoneNumber);
-            personalNumbers.add(personalNumber);
-            studentIds.add(studentId);
+        return student;
+    }
+
+    public Student updateStudent(Student oldStudent, String name, String personalNumber, String email, String phoneNumber, String program, String newPersonID) throws Exception {
+        // Validate inputs
+        validateStudentUpdate(oldStudent, personalNumber, email, phoneNumber);
+        validateProgram(program);
+
+        // If newPersonID is null, generate a new one if necessary
+        if (newPersonID == null) {
+            newPersonID = oldStudent.getPersonID();
+
+            // Check if the program has changed
+            if (!oldStudent.getProgram().equalsIgnoreCase(program)) {
+                // Generate new personID based on the new program
+                newPersonID = generateUniqueIdentifier(program);
+            }
         }
 
-        return student;
+        // Create new Student object with the new or same personID
+        Student newStudent = new Student(newPersonID, name, personalNumber, email, phoneNumber, program);
+
+        return newStudent;
+    }
+
+    private void validateStudentUpdate(Student oldStudent, String newPersonalNumber, String newEmail, String newPhoneNumber) throws Exception {
+        if (!oldStudent.getPersonalNumber().equals(newPersonalNumber)) {
+            validatePersonalNumber(newPersonalNumber);
+        }
+        if (!oldStudent.getEmail().equalsIgnoreCase(newEmail)) {
+            validateEmail(newEmail);
+        }
+        if (!oldStudent.getPhoneNumber().equals(newPhoneNumber)) {
+            validatePhoneNumber(newPhoneNumber);
+        }
+    }
+
+    private void validateProgram(String program) throws Exception {
+        if (program == null || program.isEmpty()) {
+            throw new Exception("Program cannot be null or empty.");
+        }
+        char firstChar = program.charAt(0);
+        if (!Character.isLetter(firstChar)) {
+            throw new Exception("Program must start with a letter.");
+        }
     }
 
     private void validateEmail(String email) throws Exception {
         if (!Pattern.matches(EMAIL_REGEX, email)) {
-            throw new IllegalArgumentException("Invalid email format.");
+            throw new Exception("Invalid email format.");
         }
-        synchronized (this) {
-            if (emails.contains(email.toLowerCase())) {
-                throw new IllegalArgumentException("Email already exists.");
-            }
+        if (studentDao.emailExists(email.toLowerCase())) {
+            throw new Exception("Email already exists.");
         }
     }
 
     private void validatePhoneNumber(String phoneNumber) throws Exception {
         if (!Pattern.matches(PHONE_REGEX, phoneNumber)) {
-            throw new IllegalArgumentException("Invalid phone number format.");
+            throw new Exception("Invalid phone number format.");
         }
-        synchronized (this) {
-            if (phoneNumbers.contains(phoneNumber)) {
-                throw new IllegalArgumentException("Phone number already exists.");
-            }
+        if (studentDao.phoneNumberExists(phoneNumber)) {
+            throw new Exception("Phone number already exists.");
         }
     }
 
     private void validatePersonalNumber(String personalNumber) throws Exception {
         if (!Pattern.matches(PERSONAL_NUMBER_REGEX, personalNumber)) {
-            throw new IllegalArgumentException("Invalid personal number format.");
+            throw new Exception("Invalid personal number format.");
         }
-        synchronized (this) {
-            if (personalNumbers.contains(personalNumber)) {
-                throw new IllegalArgumentException("Personal number already exists.");
-            }
+        if (studentDao.personalNumberExists(personalNumber)) {
+            throw new Exception("Personal number already exists.");
         }
     }
+
 
     private String generateUniqueIdentifier(String program) {
         char programInitial = Character.toLowerCase(program.charAt(0));
 
         int counter;
-        synchronized (this) {
+        synchronized (programCounters) {
             counter = programCounters.getOrDefault(programInitial, 0) + 1;
             programCounters.put(programInitial, counter);
         }
 
-        // Format ID with leading zeros if needed
-        String uniqueId = String.format("%c%04d", programInitial, counter);
-        return uniqueId;
-    }
-
-    @Override
-    public void update(String message) {
-
-        // Example message formats:
-        // "Student added: [student details]"
-        // "Student deleted: [student details]"
-
-        // For simplicity, let's assume the message is in the format:
-        // "Student added: [ID],[Name],[PersonalNumber],[Email],[PhoneNumber],[Program]"
-
-        if (message.startsWith("Student added: ")) {
-            String data = message.substring("Student added: ".length());
-            String[] parts = data.split(",", -1); // -1 to include empty strings
-            if (parts.length == 6) {
-                String email = parts[3].trim().toLowerCase();
-                String phoneNumber = parts[4].trim();
-                String personalNumber = parts[2].trim();
-                String studentId = parts[0].trim();
-
-                synchronized (this) {
-                    emails.add(email);
-                    phoneNumbers.add(phoneNumber);
-                    personalNumbers.add(personalNumber);
-                    studentIds.add(studentId);
-                }
-            }
-        } else if (message.startsWith("Student deleted: ")) {
-            String data = message.substring("Student deleted: ".length());
-            String[] parts = data.split(",", -1);
-            if (parts.length == 6) {
-                String email = parts[3].trim().toLowerCase();
-                String phoneNumber = parts[4].trim();
-                String personalNumber = parts[2].trim();
-                String studentId = parts[0].trim();
-
-                synchronized (this) {
-                    emails.remove(email);
-                    phoneNumbers.remove(phoneNumber);
-                    personalNumbers.remove(personalNumber);
-                    studentIds.remove(studentId);
-                }
-            }
-        }
+        return String.format("%c%04d", programInitial, counter);
     }
 }

@@ -16,6 +16,16 @@ public class Student {
         this.phoneNumber = phoneNumber;
         this.program = program;
     }
+    // Copy
+    public Student(Student other) {
+        this.personID = other.personID;
+        this.name = other.name;
+        this.personalNumber = other.personalNumber;
+        this.email = other.email;
+        this.phoneNumber = other.phoneNumber;
+        this.program = other.program;
+    }
+
 
     // Getters (no setters to maintain immutability)
     public String getPersonID() {
@@ -60,6 +70,19 @@ public class Student {
 
     public void setPhoneNumber(String number) {
 
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || !(obj instanceof Student)) return false;
+        Student other = (Student) obj;
+        return personID != null && personID.equals(other.getPersonID());
+    }
+
+    @Override
+    public int hashCode() {
+        return personID != null ? personID.hashCode() : 0;
     }
 
 

@@ -13,9 +13,10 @@ public class UndoCommand implements Command {
     }
 
     @Override
-    public void undo() {
+    public void undo() throws Exception{
         // Redo the original command
         originalCommand.execute();
+
     }
 
     @Override

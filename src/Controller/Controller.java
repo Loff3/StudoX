@@ -4,23 +4,27 @@ import Command.*;
 import Model.Dao.HistoryDao;
 import Model.Dao.StudentDao;
 import Model.Person.Student;
+import Model.Service.StudentService;
 import ObserverPattern.Observer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class Controller implements ControllerInterface {    private final CommandInvoker commandInvoker;
+public class Controller implements ControllerInterface {
+    private final CommandInvoker commandInvoker;
     private final StudentDao studentDao;
     private final HistoryDao historyDao;
+    private final StudentService studentService;
 
-    public Controller(CommandInvoker commandInvoker) {
+    public Controller(CommandInvoker commandInvoker, StudentService studentService) {
         this.commandInvoker = commandInvoker;
         this.studentDao = commandInvoker.getStudentDao();
         this.historyDao = commandInvoker.getHistoryDao();
+        this.studentService = studentService;
     }
 
     @Override
-    public void revertToVersion(int historyIndex) {
+    public void revertToVersion(int historyIndex) throws Exception {
         // Get the list of commands up to the selected point
         List<HistoryDao.CommandRecord> history = historyDao.getCommandHistory();
 
@@ -40,21 +44,21 @@ public class Controller implements ControllerInterface {    private final Comman
     }
 
     @Override
-    public void addStudent(Student student) {
-        Command addCommand = new AddStudentCommand(studentDao, student);
+    public void addStudent(String name, String personalNumber, String email, String phoneNumber, String program) throws Exception {
+        Command addCommand = new AddStudentCommand(studentDao, studentService, name, personalNumber, email, phoneNumber, program);
         commandInvoker.executeCommand(addCommand);
     }
 
     @Override
-    public void deleteStudent(Student student) {
-        Command deleteCommand = new DeleteStudentCommand(studentDao, student);
-        commandInvoker.executeCommand(deleteCommand);
+    public void updateStudent(Student oldStudent, String name, String personalNumber, String email, String phoneNumber, String program) throws Exception {
+        Command updateCommand = new UpdateStudentCommand(studentDao, studentService, oldStudent, name, personalNumber, email, phoneNumber, program);
+        commandInvoker.executeCommand(updateCommand);
     }
 
     @Override
-    public void updateStudent(Student oldStudent, Student newStudent) {
-        Command updateCommand = new UpdateStudentCommand(studentDao, oldStudent, newStudent);
-        commandInvoker.executeCommand(updateCommand);
+    public void deleteStudent(Student student) throws Exception {
+        Command deleteCommand = new DeleteStudentCommand(studentDao, student);
+        commandInvoker.executeCommand(deleteCommand);
     }
 
     @Override
@@ -73,12 +77,12 @@ public class Controller implements ControllerInterface {    private final Comman
     }
 
     @Override
-    public void undo() {
+    public void undo() throws Exception {
         commandInvoker.undo();
     }
 
     @Override
-    public void redo() {
+    public void redo() throws Exception {
         commandInvoker.redo();
     }
 
@@ -104,9 +108,8 @@ public class Controller implements ControllerInterface {    private final Comman
         historyDao.removeObserver(o);
     }
 
-        @Override
-        public List<HistoryDao.CommandRecord> getCommandHistory() {
-            return historyDao.getCommandHistory();
-        }
-
+    @Override
+    public List<HistoryDao.CommandRecord> getCommandHistory() {
+        return historyDao.getCommandHistory();
+    }
 }

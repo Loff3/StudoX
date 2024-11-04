@@ -13,7 +13,7 @@ public class RedoCommand implements Command {
     }
 
     @Override
-    public void undo() {
+    public void undo() throws Exception{
         // Undo the redo by undoing the original command
         originalCommand.undo();
     }

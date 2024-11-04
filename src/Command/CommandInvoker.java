@@ -15,7 +15,7 @@ public class CommandInvoker {
         this.historyDao = historyDao;
         this.studentDao = studentDao;
     }
-    public void executeCommand(Command command) {
+    public void executeCommand(Command command) throws Exception{
         command.execute();
         undoStack.push(command);
         redoStack.clear(); // Clear redo stack when a new command is executed
@@ -30,7 +30,7 @@ public class CommandInvoker {
         return studentDao;
     }
 
-    public void undo() {
+    public void undo() throws Exception{
         if (!undoStack.isEmpty()) {
             Command command = undoStack.pop();
             command.undo();
@@ -41,7 +41,7 @@ public class CommandInvoker {
         }
     }
 
-    public void redo() {
+    public void redo() throws Exception{
         if (!redoStack.isEmpty()) {
             Command command = redoStack.pop();
             command.execute();
@@ -53,7 +53,7 @@ public class CommandInvoker {
     }
 
 
-    public void executeVersionControlCommand(VersionControlCommand versionControlCommand) {
+    public void executeVersionControlCommand(VersionControlCommand versionControlCommand) throws Exception{
         versionControlCommand.execute();
 
         // Clear undo and redo stacks since the state has changed significantly

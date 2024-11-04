@@ -1,7 +1,7 @@
 package Command;
 
 public interface Command {
-    void execute();
-    void undo();
+    void execute() throws Exception;
+    void undo() throws Exception;
     String getDescription();
 }

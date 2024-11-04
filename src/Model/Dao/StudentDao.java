@@ -3,20 +3,19 @@ package Model.Dao;
 import Model.Person.Student;
 import ObserverPattern.Observable;
 import ObserverPattern.Observer;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class StudentDao implements Dao<Student>, Observable {
     private List<Student> students = new ArrayList<>();
     private List<Observer> observers = new ArrayList<>();
 
-    // Thread-safe Singleton
+    // Singleton pattern
     private static volatile StudentDao instance;
 
     private StudentDao() {
-
     }
 
     public static StudentDao getInstance() {
@@ -29,6 +28,11 @@ public class StudentDao implements Dao<Student>, Observable {
         }
         return instance;
     }
+
+    public boolean studentIdExists(String studentId) {
+        return students.stream().anyMatch(s -> s.getPersonID().equals(studentId));
+    }
+
 
     @Override
     public Optional<Student> get(String personID) {
@@ -45,47 +49,50 @@ public class StudentDao implements Dao<Student>, Observable {
     @Override
     public void save(Student student) {
         students.add(student);
-        notifyObservers("Student added: " + student.getName());
+        // Notify observers if necessary
     }
 
     @Override
-    public void update(Student student, Student updatedStudent) {
-
-        student.setName(updatedStudent.getName());
-        student.setEmail(updatedStudent.getEmail());
-        student.setPersonalNumber(updatedStudent.getPersonalNumber());
-        student.setProgram(updatedStudent.getProgram());
-        student.setPhoneNumber(updatedStudent.getPhoneNumber());
-
-        notifyObservers("Student added: " + formatStudentData(student));
-    }
-
-    public List<Student> search(String query) {
-        String lowerCaseQuery = query.toLowerCase();
-        return students.stream()
-                .filter(student ->
-                        student.getPersonID().toLowerCase().contains(lowerCaseQuery) ||
-                                student.getName().toLowerCase().contains(lowerCaseQuery) ||
-                                student.getPersonalNumber().toLowerCase().contains(lowerCaseQuery) ||
-                                student.getEmail().toLowerCase().contains(lowerCaseQuery) ||
-                                student.getProgram().toLowerCase().contains(lowerCaseQuery)
-                )
-                .collect(Collectors.toList());
+    public void update(Student oldStudent, Student newStudent) {
+        int index = students.indexOf(oldStudent);
+        if (index >= 0) {
+            students.set(index, newStudent);
+            // Notify observers if necessary
+        } else {
+            System.out.println("Student not found.");
+        }
     }
 
     @Override
     public void delete(Student student) {
         if (students.remove(student)) {
-            notifyObservers("Student deleted: " + formatStudentData(student));
+            // Notify observers if necessary
         } else {
-            System.out.println("Error Student Not Found");
+            System.out.println("Student not found.");
         }
     }
 
+    // Methods to check for existence
+    public boolean emailExists(String email) {
+        return students.stream()
+                .anyMatch(student -> student.getEmail().equalsIgnoreCase(email));
+    }
+
+    public boolean phoneNumberExists(String phoneNumber) {
+        return students.stream()
+                .anyMatch(student -> student.getPhoneNumber().equals(phoneNumber));
+    }
+
+    public boolean personalNumberExists(String personalNumber) {
+        return students.stream()
+                .anyMatch(student -> student.getPersonalNumber().equals(personalNumber));
+    }
 
     public void clearAll() {
-        students.clear();
-        notifyObservers("All students cleared.");
+        synchronized (this) {
+            students.clear();
+            notifyObservers("All students cleared.");
+        }
     }
 
     @Override
@@ -100,20 +107,8 @@ public class StudentDao implements Dao<Student>, Observable {
 
     @Override
     public void notifyObservers(String message) {
-        for (Observer observer : observers) {
-            observer.update(message);
+        for (Observer o : observers) {
+            o.update(message);
         }
-    }
-
-    private String formatStudentData(Student student) {
-        // Format: ID,Name,PersonalNumber,Email,PhoneNumber,Program
-        return String.join(",",
-                student.getPersonID(),
-                student.getName(),
-                student.getPersonalNumber(),
-                student.getEmail(),
-                student.getPhoneNumber(),
-                student.getProgram()
-        );
     }
 }

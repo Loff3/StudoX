@@ -6,16 +6,16 @@ import Model.Dao.HistoryDao.CommandRecord;
 import java.util.List;
 
 public interface ControllerInterface {
-        void addStudent(Student student);
-        void deleteStudent(Student student);
-        void updateStudent(Student oldStudent, Student newStudent);
+        void addStudent(String name, String personalNumber, String email, String phoneNumber, String program) throws Exception;
+        void updateStudent(Student oldStudent, String name, String personalNumber, String email, String phoneNumber, String program) throws Exception;
+        void deleteStudent(Student student) throws Exception;
         Student getStudentById(String studentId);
         List<Student> getAllStudents();
 
-        void revertToVersion(int historyIndex);
+        void revertToVersion(int historyIndex) throws Exception;
 
-        void undo();
-        void redo();
+        void undo() throws  Exception;
+        void redo() throws Exception;
         boolean canUndo();
         boolean canRedo();
 

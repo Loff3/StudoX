@@ -3,6 +3,8 @@ import Controller.Controller;
 import Controller.ControllerInterface;
 import Model.Dao.HistoryDao;
 import Model.Dao.StudentDao;
+import Model.Person.Student;
+import Model.Service.StudentService;
 import View.View;
 import com.formdev.flatlaf.FlatDarculaLaf;
 
@@ -23,16 +25,17 @@ public class Main {
             StudentDao studentDao = StudentDao.getInstance();
             HistoryDao historyDao = HistoryDao.getInstance();
 
+            // Instantiate StudentService with StudentDao
+            StudentService studentService = new StudentService(studentDao);
+
             // Instantiate CommandInvoker with DAOs
             CommandInvoker commandInvoker = new CommandInvoker(historyDao, studentDao);
 
-            // Instantiate Controller with CommandInvoker
-            ControllerInterface controller = new Controller(commandInvoker);
+            // Instantiate Controller with CommandInvoker and StudentService
+            ControllerInterface controller = new Controller(commandInvoker, studentService);
 
-            // Instantiate View and set Controller and StudentService
+            // Instantiate View and set Controller
             View view = new View(controller);
-
-
         });
     }
 }
