@@ -1,7 +1,6 @@
 package Command;
 
-import Model.Dao.HistoryDao;
-import Model.Dao.StudentDao;
+import Model.Dao.*;
 
 import java.util.Stack;
 
@@ -10,10 +9,16 @@ public class CommandInvoker {
     private final Stack<Command> redoStack = new Stack<>();
     private final HistoryDao historyDao;
     private final StudentDao studentDao;
+    private final TeacherDao teacherDao;
+    private final ProgramDao programDao;
+    private final CourseDao courseDao;
 
-    public CommandInvoker(HistoryDao historyDao, StudentDao studentDao) {
+    public CommandInvoker(HistoryDao historyDao, StudentDao studentDao, TeacherDao teacherDao, ProgramDao programDao, CourseDao courseDao) {
         this.historyDao = historyDao;
         this.studentDao = studentDao;
+        this.teacherDao = teacherDao;
+        this.programDao = programDao;
+        this.courseDao = courseDao;
     }
     public void executeCommand(Command command) throws Exception{
         command.execute();
@@ -29,6 +34,12 @@ public class CommandInvoker {
     public StudentDao getStudentDao() {
         return studentDao;
     }
+
+    public TeacherDao getTeacherDao() {return teacherDao; }
+
+    public ProgramDao getProgramDao() {return programDao; }
+
+    public CourseDao getCourseDao() {return courseDao; }
 
     public void undo() throws Exception{
         if (!undoStack.isEmpty()) {

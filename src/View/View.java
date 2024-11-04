@@ -1,9 +1,7 @@
 package View;
 
 import Controller.ControllerInterface;
-import Model.Person.Student;
 import Model.Service.StudentService;
-import ObserverPattern.Observer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,11 +9,13 @@ import java.awt.*;
 public class View extends JFrame {
 
     private ControllerInterface controller;
-    private StudentService studentService;
 
     // Components
     private JTabbedPane tabbedPane;
     private StudentPanel studentPanel;
+    private TeacherPanel teacherPanel;
+    private ProgramPanel programPanel;
+    private CoursePanel coursePanel;
     private HistoryPanel historyPanel;
 
     public View(ControllerInterface controller) {
@@ -40,10 +40,17 @@ public class View extends JFrame {
 
         // Create panels
         studentPanel = new StudentPanel(controller);
+        teacherPanel = new TeacherPanel(controller);
+        programPanel = new ProgramPanel(controller);
+        coursePanel = new CoursePanel(controller);
         historyPanel = new HistoryPanel(controller);
+
 
         // Add tabs
         tabbedPane.addTab("Student Database", studentPanel);
+        tabbedPane.add("Teacher Database", teacherPanel);
+        tabbedPane.add("Program Panel", programPanel);
+        tabbedPane.add("Course Database", coursePanel);
         tabbedPane.addTab("Version History", historyPanel);
 
         // Add components to frame

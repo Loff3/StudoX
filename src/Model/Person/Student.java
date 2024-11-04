@@ -75,8 +75,7 @@ public class Student {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (obj == null || !(obj instanceof Student)) return false;
-        Student other = (Student) obj;
+        if (!(obj instanceof Student other)) return false;
         return personID != null && personID.equals(other.getPersonID());
     }
 

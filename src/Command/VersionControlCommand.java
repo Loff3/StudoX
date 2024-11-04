@@ -1,35 +1,43 @@
-    package Command;
+package Command;
 
-    import Model.Dao.StudentDao;
-    import java.util.List;
+import Model.Dao.StudentDao;
+import Model.Dao.TeacherDao;
 
-    public class VersionControlCommand implements Command {
-        private final StudentDao studentDao;
-        private final List<Command> commandsToExecute;
+import java.util.List;
 
-        public VersionControlCommand(StudentDao studentDao, List<Command> commandsToExecute) {
-            this.studentDao = studentDao;
-            this.commandsToExecute = commandsToExecute;
-        }
+public class VersionControlCommand implements Command {
+    private final StudentDao studentDao;
+    private final TeacherDao teacherDao;
+    private final List<Command> commandsToExecute;
 
-        @Override
-        public void execute() throws Exception{
-            // Clear current state
-            studentDao.clearAll();
+    public VersionControlCommand(StudentDao studentDao, TeacherDao teacherDao, List<Command> commandsToExecute) {
+        this.studentDao = studentDao;
+        this.teacherDao = teacherDao;
+        this.commandsToExecute = commandsToExecute;
+    }
 
-            // Re-execute commands up to the selected point
-            for (Command command : commandsToExecute) {
-                command.execute();
-            }
-        }
+    @Override
+    public void execute() throws Exception {
+        // Clear current state of both DAOs
+        studentDao.clearAll();
+        teacherDao.clearAll();
 
-        @Override
-        public void undo() {
-            throw new UnsupportedOperationException("Undo not supported for VersionControlCommand.");
-        }
-
-        @Override
-        public String getDescription() {
-            return "Reverted to version: " + commandsToExecute.get(commandsToExecute.size() - 1).getDescription();
+        // Re-execute commands up to the selected point
+        for (Command command : commandsToExecute) {
+            command.execute();
         }
     }
+
+    @Override
+    public void undo() {
+        throw new UnsupportedOperationException("Undo not supported for VersionControlCommand.");
+    }
+
+    @Override
+    public String getDescription() {
+        if (commandsToExecute.isEmpty()) {
+            return "Reverted to initial state.";
+        }
+        return "Reverted to version: " + commandsToExecute.get(commandsToExecute.size() - 1).getDescription();
+    }
+}
